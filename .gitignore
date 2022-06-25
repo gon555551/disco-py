@@ -6,3 +6,4 @@ pyvenv.cfg
 settings.json
 /.vscode/
 __test.py
+_test.py

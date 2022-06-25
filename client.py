@@ -1,5 +1,5 @@
 import websockets
-import register
+import requests
 import asyncio
 import json
 
@@ -11,22 +11,24 @@ class Client:
     hb: int
     intents: int
     name: str
+    appid: str
 
     _loop: asyncio.AbstractEventLoop
+    _commands: list
 
-    def go_online(self, token: str, intents: int) -> None:
-        self.s, self.id, self.token, self._loop = (
+    def __init__(self, token: str, intents: int) -> None:
+        self._commands = []
+        self.token = token
+        self.intents = intents
+
+    def go_online(self) -> None:
+        self.s, self.id, self._loop = (
             int(),
             str(),
-            token,
             asyncio.get_event_loop(),
         )
 
-        # should make conversion from text to int
-        self.intents = intents
-
-        # NEED TO REGISTER COMMANDS HERE
-        #
+        self.__register_commands()
 
         self._loop.run_until_complete(self.__establish_websocket_gateway())
 
@@ -76,6 +78,26 @@ class Client:
 
         self.__call_on_ready()
 
+    # on ready decorator
+    def on_ready(self, func):
+        self.__call_on_ready = func
+
+    def __call_on_ready(self):
+        pass
+
+    # command decorator
+    def slash(self, json: dict):
+        self._commands.append(json)
+
+    def __register_commands(self):
+        id_url = "https://discord.com/api/v10/oauth2/applications/@me"
+        headers = {"Authorization": f"Bot {self.token}"}
+        self.appid = requests.get(id_url, headers=headers).json()["id"]
+        register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
+
+        for json in self._commands:
+            requests.post(register_url, headers=headers, json=json)
+
     # event listener
     async def __listener(self) -> None:
         while True:
@@ -85,10 +107,3 @@ class Client:
                     await self.ws.send(json.dumps({"op": 1, "d": self.s}))
                 case _:
                     self.s = msg["s"]
-
-    # on ready decorator
-    def on_ready(self, func):
-        self.__call_on_ready = func
-
-    def __call_on_ready(self):
-        pass
