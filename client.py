@@ -45,7 +45,7 @@ class Client:
         }
         )
         await self.ws.send(op1)
-        asyncio.create_task(self.__heartbeat())
+        self._loop.create_task(self.__heartbeat())
         await self.ws.recv()
 
         op2 = json.dumps(
@@ -67,12 +67,10 @@ class Client:
 
         self.s = op0['s']
         self.id = op0['d']['session_id']
-        return
 
     async def __listener(self) -> None:
         while True:
             msg = json.loads(await self.ws.recv())
-            print(msg)
             match msg['op']:
                 case 1:
                     await self.ws.send(json.dumps(
