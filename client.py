@@ -1,4 +1,6 @@
-import websockets, asyncio, json
+import websockets
+import asyncio
+import json
 
 
 class Client:
