@@ -13,6 +13,7 @@ class Client:
     intents: int
     name: str
     appid: str
+    auth_headers: dict
 
     _loop: asyncio.AbstractEventLoop
     _commands: dict
@@ -26,6 +27,17 @@ class Client:
         self._handlers = dict()
         self.token = token
         self.intents = intents
+
+        id_url = "https://discord.com/api/v10/oauth2/applications/@me"
+        self.auth_headers = {"Authorization": f"Bot {self.token}"}
+        self.appid = requests.get(id_url, headers=self.auth_headers).json()["id"]
+
+        register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
+        for app_comms in requests.get(register_url, headers=self.auth_headers).json():
+            requests.delete(
+                f"https://discord.com/api/v10/applications/{self.appid}/commands/{app_comms['id']}",
+                headers=self.auth_headers,
+            )
 
     def go_online(self) -> None:
         self.s, self.id, self._loop = (
@@ -96,17 +108,17 @@ class Client:
         self._commands[json["name"]] = json
 
     def __register_commands(self):
-        id_url = "https://discord.com/api/v10/oauth2/applications/@me"
-        headers = {"Authorization": f"Bot {self.token}"}
-        self.appid = requests.get(id_url, headers=headers).json()["id"]
         register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
+        names = []
+        for already_in in requests.get(register_url, headers=self.auth_headers).json():
+            names.append(already_in["name"])
 
         for json in self._commands.values():
-            for already_in in requests.get(register_url, headers=headers).json():
-                if already_in["name"] == json["name"]:
-                    requests.patch(register_url, headers=headers, json=json)
-                else:
-                    requests.post(register_url, headers=headers, json=json)
+            if json["name"] in names:
+                requests.patch(register_url, headers=self.auth_headers, json=json)
+                break
+            else:
+                requests.post(register_url, headers=self.auth_headers, json=json)
 
     # handler decorator
     def handler(self, func):
@@ -134,4 +146,3 @@ class Client:
                         await self._handlers[self.handling["data"]["name"]]()
                 case _:
                     self.s = msg["s"]
-                    print(msg)
