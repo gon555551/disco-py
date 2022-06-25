@@ -14,10 +14,10 @@ class Client:
     appid: str
 
     _loop: asyncio.AbstractEventLoop
-    _commands: list
+    _commands: dict
 
     def __init__(self, token: str, intents: int) -> None:
-        self._commands = []
+        self._commands = dict()
         self.token = token
         self.intents = intents
 
@@ -85,9 +85,9 @@ class Client:
     def __call_on_ready(self):
         pass
 
-    # command decorator
+    # command function
     def slash(self, json: dict):
-        self._commands.append(json)
+        self._commands[json['name']] = json
 
     def __register_commands(self):
         id_url = "https://discord.com/api/v10/oauth2/applications/@me"
@@ -95,8 +95,9 @@ class Client:
         self.appid = requests.get(id_url, headers=headers).json()["id"]
         register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
 
-        for json in self._commands:
-            requests.post(register_url, headers=headers, json=json)
+        for json in self._commands.values():
+            response = requests.post(register_url, headers=headers, json=json)
+            print(response.text)
 
     # event listener
     async def __listener(self) -> None:
@@ -107,3 +108,4 @@ class Client:
                     await self.ws.send(json.dumps({"op": 1, "d": self.s}))
                 case _:
                     self.s = msg["s"]
+                    print(msg)
