@@ -1,3 +1,4 @@
+from tkinter.filedialog import Directory
 import websockets
 import requests
 import asyncio
@@ -15,9 +16,14 @@ class Client:
 
     _loop: asyncio.AbstractEventLoop
     _commands: dict
+    _handlers: Directory
+
+    type: int
+    message: str
 
     def __init__(self, token: str, intents: int) -> None:
         self._commands = dict()
+        self._handlers = dict()
         self.token = token
         self.intents = intents
 
@@ -87,7 +93,7 @@ class Client:
 
     # command function
     def slash(self, json: dict):
-        self._commands[json['name']] = json
+        self._commands[json["name"]] = json
 
     def __register_commands(self):
         id_url = "https://discord.com/api/v10/oauth2/applications/@me"
@@ -97,7 +103,19 @@ class Client:
 
         for json in self._commands.values():
             response = requests.post(register_url, headers=headers, json=json)
-            print(response.text)
+
+    # handler decorator
+    def handler(self, func):
+        async def full_handler(msg: dict):
+            func()
+            callback_url = f"https://discord.com/api/v10/interactions/{msg['d']['id']}/{msg['d']['token']}/callback"
+            requests.post(
+                callback_url,
+                json={"type": self.type, "data": {"content": self.message}},
+            )
+            self.type, self.message = None, None
+
+        self._handlers[func.__name__] = full_handler
 
     # event listener
     async def __listener(self) -> None:
@@ -106,6 +124,9 @@ class Client:
             match msg["op"]:
                 case 1:
                     await self.ws.send(json.dumps({"op": 1, "d": self.s}))
+                case 0:
+                    if msg["d"]["data"]["name"] in self._handlers.keys():
+                        await self._handlers[msg["d"]["data"]["name"]](msg)
                 case _:
                     self.s = msg["s"]
                     print(msg)
