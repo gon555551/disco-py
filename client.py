@@ -1,4 +1,5 @@
 import websockets
+import register
 import asyncio
 import json
 
