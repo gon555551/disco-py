@@ -32,19 +32,20 @@ class Client:
         self.auth_headers = {"Authorization": f"Bot {self.token}"}
         self.appid = requests.get(id_url, headers=self.auth_headers).json()["id"]
 
-        register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
-        for app_comms in requests.get(register_url, headers=self.auth_headers).json():
-            requests.delete(
-                f"https://discord.com/api/v10/applications/{self.appid}/commands/{app_comms['id']}",
-                headers=self.auth_headers,
-            )
-
     def go_online(self) -> None:
         self.s, self.id, self._loop = (
             int(),
             str(),
             asyncio.get_event_loop(),
         )
+
+        register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
+        for app_comms in requests.get(register_url, headers=self.auth_headers).json():
+            if app_comms['name'] not in self._commands:
+                requests.delete(
+                    f"https://discord.com/api/v10/applications/{self.appid}/commands/{app_comms['id']}",
+                    headers=self.auth_headers,
+                )
 
         self.__register_commands()
 
