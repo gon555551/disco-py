@@ -117,8 +117,8 @@ class Client:
         for json in self._commands.values():
             if json["name"] in names:
                 requests.patch(register_url, headers=self.auth_headers, json=json)
-                break
             else:
+                print(f'posted {json["name"]}')
                 requests.post(register_url, headers=self.auth_headers, json=json)
 
     # handler decorator
