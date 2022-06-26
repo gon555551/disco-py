@@ -1,7 +1,6 @@
 /__pycache__/
 /discord_bot/
-settings.json
 /.vscode/
 __test.py
 _test.py
-client.py
+first_try.py
