@@ -139,14 +139,16 @@ class Client:
 
             msg = json.loads(await self.ws.recv())
             self.handling = msg["d"]
+            print(msg)
             match msg["op"]:
                 case 1:
                     self.s = msg["s"]
                     await self.ws.send(json.dumps({"op": 1, "d": self.s}))
                 case 0:
                     self.s = msg["s"]
-                    if msg["d"]["data"]["name"] in self._handlers.keys():
-                        await self._handlers[self.handling["data"]["name"]](True)
+                    if msg['t'] == 'INTERACTION_CREATE':
+                        if msg["d"]["data"]["name"] in self._handlers.keys():
+                            await self._handlers[self.handling["data"]["name"]](True)
                 case _:
                     self.s = msg["s"]
 
