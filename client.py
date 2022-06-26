@@ -159,15 +159,17 @@ class Client:
             "wss://gateway.discord.gg/?v=10&encoding=json"
         ) as ws:
             self.ws = ws
-            await self.ws.send(json.dumps(
-                {
-                    'op': 6,
-                    'd': {
-                        'token': self.token,
-                        'session_id': self.id,
-                        'seq': self.s
+            await self.ws.send(
+                json.dumps(
+                    {
+                        "op": 6,
+                        "d": {
+                            "token": self.token,
+                            "session_id": self.id,
+                            "seq": self.s,
+                        },
                     }
-                }
-            ))
+                )
+            )
 
             await self.__listener()
