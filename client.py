@@ -103,9 +103,20 @@ class Client:
     def __call_on_ready(self):
         pass
 
-    # command function
-    def slash(self, json: dict):
+    def slash_command(self, func):
+        json = func(False)
         self._commands[json["name"]] = json
+
+        async def full_handler(handle: bool):
+            func(handle)
+            callback_url = f"https://discord.com/api/v10/interactions/{self.handling['id']}/{self.handling['token']}/callback"
+            requests.post(
+                callback_url,
+                json={"type": 4, "data": {"content": self.message}},
+            )
+            self.message = None
+
+        self._handlers[json["name"]] = full_handler
 
     def __register_commands(self):
         register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
@@ -119,19 +130,6 @@ class Client:
             else:
                 print(f'posted {json["name"]}')
                 requests.post(register_url, headers=self.auth_headers, json=json)
-
-    # handler decorator
-    def handler(self, func):
-        async def full_handler():
-            func()
-            callback_url = f"https://discord.com/api/v10/interactions/{self.handling['id']}/{self.handling['token']}/callback"
-            requests.post(
-                callback_url,
-                json={"type": 4, "data": {"content": self.message}},
-            )
-            self.message = None
-
-        self._handlers[func.__name__] = full_handler
 
     # event listener
     async def __listener(self) -> None:
@@ -148,7 +146,7 @@ class Client:
                 case 0:
                     self.s = msg["s"]
                     if msg["d"]["data"]["name"] in self._handlers.keys():
-                        await self._handlers[self.handling["data"]["name"]]()
+                        await self._handlers[self.handling["data"]["name"]](True)
                 case _:
                     self.s = msg["s"]
 
