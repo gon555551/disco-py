@@ -140,8 +140,10 @@ class Client:
             self.handling = msg["d"]
             match msg["op"]:
                 case 1:
+                    self.s = msg["s"]
                     await self.ws.send(json.dumps({"op": 1, "d": self.s}))
                 case 0:
+                    self.s = msg["s"]
                     if msg["d"]["data"]["name"] in self._handlers.keys():
                         await self._handlers[self.handling["data"]["name"]]()
                 case _:
