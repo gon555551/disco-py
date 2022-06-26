@@ -159,7 +159,6 @@ class Client:
             "wss://gateway.discord.gg/?v=10&encoding=json"
         ) as ws:
             self.ws = ws
-            await self.__ready_client()
             await self.ws.send(json.dumps(
                 {
                     'op': 6,
