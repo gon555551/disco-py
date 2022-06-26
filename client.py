@@ -41,7 +41,7 @@ class Client:
 
         register_url = f"https://discord.com/api/v10/applications/{self.appid}/commands"
         for app_comms in requests.get(register_url, headers=self.auth_headers).json():
-            if app_comms['name'] not in self._commands:
+            if app_comms["name"] not in self._commands:
                 requests.delete(
                     f"https://discord.com/api/v10/applications/{self.appid}/commands/{app_comms['id']}",
                     headers=self.auth_headers,
