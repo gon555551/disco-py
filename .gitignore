@@ -1,8 +1,5 @@
 /__pycache__/
-/Include/
-/Lib/
-/Scripts/
-pyvenv.cfg
+/discord_bot/
 settings.json
 /.vscode/
 __test.py
