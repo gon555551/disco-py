@@ -1,4 +1,3 @@
-from tkinter.filedialog import Directory
 import websockets
 import requests
 import asyncio
@@ -17,7 +16,7 @@ class Client:
 
     _loop: asyncio.AbstractEventLoop
     _commands: dict
-    _handlers: Directory
+    _handlers: list
 
     message: str
     handling: dict
