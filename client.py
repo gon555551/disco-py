@@ -136,6 +136,9 @@ class Client:
     # event listener
     async def __listener(self) -> None:
         while True:
+            if self.ws.closed is True:
+                self.resume()
+
             msg = json.loads(await self.ws.recv())
             self.handling = msg["d"]
             match msg["op"]:
@@ -148,3 +151,24 @@ class Client:
                         await self._handlers[self.handling["data"]["name"]]()
                 case _:
                     self.s = msg["s"]
+
+    # resuming protocol
+    async def resume(self) -> None:
+        self.ws.close()
+        async with websockets.connect(
+            "wss://gateway.discord.gg/?v=10&encoding=json"
+        ) as ws:
+            self.ws = ws
+            await self.__ready_client()
+            await self.ws.send(json.dumps(
+                {
+                    'op': 6,
+                    'd': {
+                        'token': self.token,
+                        'session_id': self.id,
+                        'seq': self.s
+                    }
+                }
+            ))
+
+            await self.__listener()
