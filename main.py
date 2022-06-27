@@ -48,15 +48,22 @@ if __name__ == "__main__":
 
     @bot.interaction_create()
     async def do_on_interaction(event: InteractionCreate):
-        if event.data["name"] == "new_commands":
-            if (
-                event.options["option_1"] == "this"
-                and event.options["option_2"] == "the_other"
-            ):
-                bot.send_interaction("this new one works")
-            else:
-                bot.send_interaction("that one too")
-        else:
-            bot.send_interaction("testing successfull")
+        match event.data["name"]:
+            case "test_slash_command":
+                bot.send_interaction("KAPOW")
+            case "new_commands":
+                match list(event.options.keys()):
+                    case ("option_1", "option_2"):
+                        match event.options["option_1"]:
+                            case "this":
+                                bot.send_interaction("both and this")
+                            case _:
+                                bot.send_interaction("both and that")
+                    case _:
+                        match event.options["option_1"]:
+                            case "this":
+                                bot.send_interaction("just this")
+                            case _:
+                                bot.send_interaction("just that")
 
     bot.loop()
