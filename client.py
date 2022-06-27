@@ -29,7 +29,7 @@ class Bot:
         Args:
             token (str): your bot token
         """
-        
+
         self.__set_intents()
 
         self.token: str = token
@@ -50,8 +50,7 @@ class Bot:
         self.__intents = sum(*args)
 
     def loop(self) -> None:
-        """start the event loop
-        """
+        """start the event loop"""
         self.__event_loop = asyncio.get_event_loop()
         self.__event_loop.run_until_complete(self.__establish_connection())
 
@@ -112,7 +111,7 @@ class Bot:
         Returns:
             typing.Callable[[], None]: wrapper
         """
-        
+
         def __on_ready(
             call_on_ready: typing.Callable[[], None]
         ) -> typing.Callable[[], None]:
@@ -125,7 +124,30 @@ class Bot:
 
     async def __listener(self):
         while True:
+            if self.ws.closed is True:
+                break
             self.__queue.put(json.loads(await self.ws.recv()))
+        await self.__resume_protocol()
+
+    async def __resume_protocol(self):
+        self.ws.close()
+        async with websockets.connect(
+            "wss://gateway.discord.gg/?v=10&encoding=json"
+        ) as ws:
+            self.ws = ws
+            await self.ws.send(
+                json.dumps(
+                    {
+                        "op": 6,
+                        "d": {
+                            "token": self.token,
+                            "session_id": self.__session_id,
+                            "seq": self.__seq,
+                        },
+                    }
+                )
+            )
+            await self.__listener()
 
     async def __gateway_handler(self):
         while True:
@@ -153,7 +175,7 @@ class Bot:
         Returns:
             typing.Callable[[], None]: wrapper
         """
-        
+
         def __on_message_create(
             handler_function: typing.Callable[[], None]
         ) -> typing.Callable[[], None]:
@@ -170,7 +192,7 @@ class Bot:
         Args:
             content (str): content of the message
         """
-        
+
         endpoint_url = (
             f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
         )
@@ -186,7 +208,7 @@ class Bot:
         Returns:
             typing.Callable[[], None]: wrapper
         """
-        
+
         def __on_interaction_create(
             handler_function: typing.Callable[[], None]
         ) -> typing.Callable[[], None]:
@@ -203,6 +225,6 @@ class Bot:
         Args:
             content (str): content of the response
         """
-        
+
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
