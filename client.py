@@ -267,12 +267,16 @@ class Bot:
     async def __call_on_interaction_create(self, event: InteractionCreate) -> None:
         pass
 
-    def send_interaction(self, content: str) -> None:
-        """respond to an interaction
+    def send_interaction(self, content: str, ephemeral: bool = False) -> None:
+        """send an interaction response
 
         Args:
-            content (str): content of the response
+            content (str): the content of the message
+            ephemeral (bool, optional): whether it's an ephemeral. Defaults to False.
         """
-
+        
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
-        requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
+        if ephemeral:
+            requests.post(endpoint_url, json={"type": 4, "data": {"content": content, "flags": 64}})
+        else:
+            requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})

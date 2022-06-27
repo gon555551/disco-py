@@ -50,7 +50,7 @@ if __name__ == "__main__":
     async def do_on_interaction(event: InteractionCreate):
         match event.data["name"]:
             case "test_slash_command":
-                bot.send_interaction("KAPOW")
+                bot.send_interaction("KAPOW", True)
             case "new_commands":
                 match list(event.options.keys()):
                     case ("option_1", "option_2"):
