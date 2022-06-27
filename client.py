@@ -136,7 +136,6 @@ class Bot:
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
         )
         if json["name"] in self.__command_dict.keys():
-            print("already")
             r = requests.patch(
                 f"{commands_url}/{self.__command_dict[json['name']]}",
                 headers={"Authorization": f"Bot {self.token}"},
