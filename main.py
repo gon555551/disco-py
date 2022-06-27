@@ -27,7 +27,7 @@ if __name__ == "__main__":
     }
 
     bot.register(command)
-    
+
     @bot.on_ready()
     def do_on_ready():
         print(f"logged in as {bot.full_name}")
