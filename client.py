@@ -125,11 +125,11 @@ class Bot:
 
                 match self.__event["t"]:
                     case "MESSAGE_CREATE":
-                        await self.__call_on_message_create(MessageCreate(self.__event))
+                        self.__event = MessageCreate(self.__event)
+                        await self.__call_on_message_create(self.__event)
                     case "INTERACTION_CREATE":
-                        await self.__call_on_interaction_create(
-                            InteractionCreate(self.__event)
-                        )
+                        self.__event = InteractionCreate(self.__event)
+                        await self.__call_on_interaction_create(self.__event)
                     case _:
                         print(self.__event)
 
@@ -144,9 +144,9 @@ class Bot:
     async def __call_on_message_create(self, event: MessageCreate) -> None:
         pass
 
-    def send_message(self, event: MessageCreate, content: str) -> None:
+    def send_message(self, content: str) -> None:
         endpoint_url = (
-            f"https://discord.com/api/v10/channels/{event.channel_id}/messages"
+            f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
         )
         requests.post(
             endpoint_url,
@@ -165,6 +165,6 @@ class Bot:
     async def __call_on_interaction_create(self, event: InteractionCreate) -> None:
         pass
 
-    def send_interaction(self, event: InteractionCreate, content: str) -> None:
-        endpoint_url = f"https://discord.com/api/v10/interactions/{event.id}/{event.token}/callback"
+    def send_interaction(self, content: str) -> None:
+        endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
