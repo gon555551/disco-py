@@ -24,6 +24,12 @@ class Bot:
     AUTO_MODERATION_EXECUTION: int
 
     def __init__(self, token: str) -> None:
+        """your bot
+
+        Args:
+            token (str): your bot token
+        """
+        
         self.__set_intents()
 
         self.token: str = token
@@ -44,6 +50,8 @@ class Bot:
         self.__intents = sum(*args)
 
     def loop(self) -> None:
+        """start the event loop
+        """
         self.__event_loop = asyncio.get_event_loop()
         self.__event_loop.run_until_complete(self.__establish_connection())
 
@@ -99,6 +107,12 @@ class Bot:
             await self.ws.send(json.dumps({"op": 1, "d": self.__seq}))
 
     def on_ready(self) -> typing.Callable[[], None]:
+        """decorator for when the bot completes connecting procedures
+
+        Returns:
+            typing.Callable[[], None]: wrapper
+        """
+        
         def __on_ready(
             call_on_ready: typing.Callable[[], None]
         ) -> typing.Callable[[], None]:
@@ -134,6 +148,12 @@ class Bot:
                         print(self.__event)
 
     def message_create(self) -> typing.Callable[[], None]:
+        """decorator for responding to MESSAGE_CREATE events
+
+        Returns:
+            typing.Callable[[], None]: wrapper
+        """
+        
         def __on_message_create(
             handler_function: typing.Callable[[], None]
         ) -> typing.Callable[[], None]:
@@ -145,6 +165,12 @@ class Bot:
         pass
 
     def send_message(self, content: str) -> None:
+        """send a message in the channel of the MESSAGE_CREATE event you're responding to
+
+        Args:
+            content (str): content of the message
+        """
+        
         endpoint_url = (
             f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
         )
@@ -155,6 +181,12 @@ class Bot:
         )
 
     def interaction_create(self) -> typing.Callable[[], None]:
+        """decorator for responding to INTERACTION_CREATE events
+
+        Returns:
+            typing.Callable[[], None]: wrapper
+        """
+        
         def __on_interaction_create(
             handler_function: typing.Callable[[], None]
         ) -> typing.Callable[[], None]:
@@ -166,5 +198,11 @@ class Bot:
         pass
 
     def send_interaction(self, content: str) -> None:
+        """respond to an interaction
+
+        Args:
+            content (str): content of the response
+        """
+        
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
