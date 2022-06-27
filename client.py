@@ -36,6 +36,7 @@ class Bot:
 
         self.__queue = queue.Queue()
         self.__intents: int = None
+        self.__get_app_id()
 
     def __set_intents(self) -> None:
         for bit, attr in enumerate(list(self.__annotations__)):
@@ -98,19 +99,12 @@ class Bot:
             target=asyncio.run, args=(self.__gateway_handler(),), daemon=True
         ).start()
 
-        self.__get_app_id()
         self.__call_on_ready()
 
     async def __heartbeat(self):
         while True:
             await asyncio.sleep(self.__heartbeat_interval / 1000)
             await self.ws.send(json.dumps({"op": 1, "d": self.__seq}))
-
-    def __get_app_id(self) -> None:
-        user_url = "https://discord.com/api/v10/users/@me"
-        self.__app_id = requests.get(
-            user_url, headers={"Authorization": f"Bot {self.token}"}
-        ).json()["id"]
 
     def on_ready(self) -> typing.Callable[[], None]:
         """decorator for when the bot completes connecting procedures
@@ -128,6 +122,12 @@ class Bot:
 
     def __call_on_ready(self) -> None:
         pass
+
+    def __get_app_id(self) -> None:
+        user_url = "https://discord.com/api/v10/users/@me"
+        self.__app_id = requests.get(
+            user_url, headers={"Authorization": f"Bot {self.token}"}
+        ).json()["id"]
 
     def register(self, json) -> None:
         commands_url = (

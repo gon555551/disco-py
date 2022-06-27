@@ -8,6 +8,26 @@ if __name__ == "__main__":
     bot = Bot(os.environ["TOKEN"])
     bot.intents = bot.MESSAGE_CONTENT, bot.GUILD_MESSAGES
 
+    command = {
+        "name": "new_commands",
+        "type": 1,
+        "description": "this is a new command",
+        "options": [
+            {
+                "name": "option",
+                "description": "the option",
+                "required": True,
+                "type": 3,
+                "choices": [
+                    {"name": "this", "value": "this"},
+                    {"name": "that", "value": "that"},
+                ],
+            }
+        ],
+    }
+
+    bot.register(command)
+    
     @bot.on_ready()
     def do_on_ready():
         print(f"logged in as {bot.full_name}")
