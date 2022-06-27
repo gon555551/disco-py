@@ -17,7 +17,7 @@ if __name__ == "__main__":
         if event.author["username"] == bot.username:
             return
 
-        bot.send_message("bruh no way")
+        bot.send_message(event.content)
 
     @bot.interaction_create()
     async def do_on_interaction(event: InteractionCreate):
