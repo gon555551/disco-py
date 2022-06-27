@@ -146,7 +146,7 @@ class Bot:
             requests.post(
                 commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
             )
-            
+
     def delete(self, name: str):
         self.__get_command_dict()
         commands_url = (
@@ -155,11 +155,10 @@ class Bot:
         if name in self.__command_dict.keys():
             requests.delete(
                 f"{commands_url}/{self.__command_dict[name]}",
-                headers={"Authorization": f"Bot {self.token}"}
+                headers={"Authorization": f"Bot {self.token}"},
             )
         else:
             raise CommandMissing(name)
-            
 
     def __get_command_dict(self) -> None:
         commands_url = (
@@ -274,9 +273,26 @@ class Bot:
             content (str): the content of the message
             ephemeral (bool, optional): whether it's an ephemeral. Defaults to False.
         """
-        
+
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         if ephemeral:
-            requests.post(endpoint_url, json={"type": 4, "data": {"content": content, "flags": 64}})
+            requests.post(
+                endpoint_url,
+                json={"type": 4, "data": {"content": content, "flags": 64}},
+            )
         else:
             requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
+
+    def send_dm(self, content: str, user: dict) -> None:
+        endpoint_url = "https://discord.com/api/v10//users/@me/channels"
+        dm_channel = requests.post(
+            endpoint_url,
+            headers={"Authorization": f"Bot {self.token}"},
+            json=user["id"],
+        )
+        send_url = f"https://discord.com/api/v10/channels/{dm_channel['id']}/messages"
+        requests.post(
+            send_url,
+            json={"content": content},
+            headers={"Authorization": f"Bot {self.token}"},
+        )
