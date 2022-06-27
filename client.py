@@ -1,5 +1,6 @@
 import websockets, json, asyncio, queue, typing, threading, requests
 from events import *
+from errors import *
 
 
 class Bot:
@@ -136,16 +137,29 @@ class Bot:
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
         )
         if json["name"] in self.__command_dict.keys():
-            r = requests.patch(
+            requests.patch(
                 f"{commands_url}/{self.__command_dict[json['name']]}",
                 headers={"Authorization": f"Bot {self.token}"},
                 json=json,
             )
-            print(r.json())
         else:
             requests.post(
                 commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
             )
+            
+    def delete(self, name: str):
+        self.__get_command_dict()
+        commands_url = (
+            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
+        )
+        if name in self.__command_dict.keys():
+            requests.delete(
+                f"{commands_url}/{self.__command_dict[name]}",
+                headers={"Authorization": f"Bot {self.token}"}
+            )
+        else:
+            raise CommandMissing(name)
+            
 
     def __get_command_dict(self) -> None:
         commands_url = (
