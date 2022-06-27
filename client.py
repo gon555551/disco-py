@@ -36,6 +36,7 @@ class Bot:
 
         self.__queue = queue.Queue()
         self.__intents: int = None
+        self.__command_dict = dict()
         self.__get_app_id()
 
     def __set_intents(self) -> None:
@@ -130,33 +131,31 @@ class Bot:
         ).json()["id"]
 
     def register(self, json) -> None:
-        self.__get_command_list()
+        self.__get_command_dict()
         commands_url = (
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
         )
-        if json["name"] in self.__commands_list:
-            requests.patch(
-                commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
+        if json["name"] in self.__command_dict.keys():
+            print("already")
+            r = requests.patch(
+                f"{commands_url}/{self.__command_dict[json['name']]}",
+                headers={"Authorization": f"Bot {self.token}"},
+                json=json,
             )
+            print(r.json())
         else:
             requests.post(
                 commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
             )
-            self.__commands_list.append(json["name"])
-            
-    def __get_command_list(self) -> None:
+
+    def __get_command_dict(self) -> None:
         commands_url = (
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
         )
-        self.__commands_list = [
-            name
-            for name in [
-                command["name"]
-                for command in requests.get(
-                    commands_url, headers={"Authorization": f"Bot {self.token}"}
-                ).json()
-            ]
-        ]
+        for commands in requests.get(
+            commands_url, headers={"Authorization": f"Bot {self.token}"}
+        ).json():
+            self.__command_dict[commands["name"]] = commands["id"]
 
     async def __listener(self):
         while True:

@@ -14,15 +14,22 @@ if __name__ == "__main__":
         "description": "this is a new command",
         "options": [
             {
-                "name": "option",
-                "description": "the option",
+                "name": "option_1",
+                "description": "the first option",
                 "required": True,
                 "type": 3,
                 "choices": [
                     {"name": "this", "value": "this"},
                     {"name": "that", "value": "that"},
                 ],
-            }
+            },
+            {
+                "name": "option_2",
+                "description": "the other option",
+                "required": False,
+                "type": 3,
+                "choices": [{"name": "whatever", "value": "the_other"}],
+            },
         ],
     }
 
@@ -42,7 +49,13 @@ if __name__ == "__main__":
     @bot.interaction_create()
     async def do_on_interaction(event: InteractionCreate):
         if event.data["name"] == "new_commands":
-            bot.send_interaction("the new one works")
+            if (
+                event.options["option_1"] == "this"
+                and event.options["option_2"] == "the_other"
+            ):
+                bot.send_interaction("this new one works")
+            else:
+                bot.send_interaction("that one too")
         else:
             bot.send_interaction("testing successfull")
 
