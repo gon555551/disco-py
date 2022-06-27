@@ -13,7 +13,14 @@ if __name__ == "__main__":
         print(f"logged in as {bot.full_name}")
 
     @bot.message_create()
-    def do_on_message(event: MessageCreate):
-        print(event.content)
+    async def do_on_message(event: MessageCreate):
+        if event.author["username"] == bot.username:
+            return
+
+        bot.send_message(event, "bruh no way")
+
+    @bot.interaction_create()
+    async def do_on_interaction(event: InteractionCreate):
+        bot.send_interaction(event, "testing successfull")
 
     bot.loop()
