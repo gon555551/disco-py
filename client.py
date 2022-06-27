@@ -148,7 +148,11 @@ class Bot:
         endpoint_url = (
             f"https://discord.com/api/v10/channels/{event.channel_id}/messages"
         )
-        requests.post(endpoint_url, json={"content": content}, headers={"Authorization": f"Bot {self.token}"})
+        requests.post(
+            endpoint_url,
+            json={"content": content},
+            headers={"Authorization": f"Bot {self.token}"},
+        )
 
     def interaction_create(self) -> typing.Callable[[], None]:
         def __on_interaction_create(
