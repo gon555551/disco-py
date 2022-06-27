@@ -2,5 +2,5 @@
 /discord_bot/
 /.vscode/
 __test.py
-_test.py
 first_try.py
+.env
