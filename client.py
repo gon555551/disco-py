@@ -130,10 +130,25 @@ class Bot:
         ).json()["id"]
 
     def register(self, json) -> None:
+        self.__get_command_list()
         commands_url = (
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
         )
-        commands_list = [
+        if json["name"] in self.__commands_list:
+            requests.patch(
+                commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
+            )
+        else:
+            requests.post(
+                commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
+            )
+            self.__commands_list.append(json["name"])
+            
+    def __get_command_list(self) -> None:
+        commands_url = (
+            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
+        )
+        self.__commands_list = [
             name
             for name in [
                 command["name"]
@@ -142,14 +157,6 @@ class Bot:
                 ).json()
             ]
         ]
-        if json["name"] in commands_list:
-            requests.patch(
-                commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
-            )
-        else:
-            requests.post(
-                commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
-            )
 
     async def __listener(self):
         while True:

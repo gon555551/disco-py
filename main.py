@@ -41,6 +41,9 @@ if __name__ == "__main__":
 
     @bot.interaction_create()
     async def do_on_interaction(event: InteractionCreate):
-        bot.send_interaction("testing successfull")
+        if event.data["name"] == "new_commands":
+            bot.send_interaction("the new one works")
+        else:
+            bot.send_interaction("testing successfull")
 
     bot.loop()
