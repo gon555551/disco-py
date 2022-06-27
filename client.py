@@ -57,7 +57,7 @@ class Bot:
     async def __prepare(self):
         hello = json.loads(await self.ws.recv())
         self.__heartbeat_interval = hello["d"]["heartbeat_interval"]
-        
+
         first_heartbeat = json.dumps({"op": 1, "d": None})
         await self.ws.send(first_heartbeat)
         await self.ws.recv()
@@ -80,26 +80,29 @@ class Bot:
         ready = json.loads(await self.ws.recv())
         self.__seq = ready["s"]
         self.__session_id = ready["d"]["session_id"]
-        
+
         self.username = ready["d"]["user"]["username"]
         self.discriminator = ready["d"]["user"]["discriminator"]
         self.full_name = f"{self.username}#{self.discriminator}"
 
         self.__event_loop.create_task(self.__heartbeat())
         threading.Thread(target=self.__gateway_handler, daemon=True).start()
-        
+
         self.__call_on_ready()
 
     async def __heartbeat(self):
         while True:
             await asyncio.sleep(self.__heartbeat_interval / 1000)
             await self.ws.send(json.dumps({"op": 1, "d": self.__seq}))
-            
+
     def on_ready(self) -> typing.Callable[[], None]:
-        def __on_ready(call_on_ready: typing.Callable[[], None]) -> typing.Callable[[], None]:
+        def __on_ready(
+            call_on_ready: typing.Callable[[], None]
+        ) -> typing.Callable[[], None]:
             self.__call_on_ready = call_on_ready
+
         return __on_ready
-    
+
     def __call_on_ready(self) -> None:
         pass
 
@@ -111,4 +114,3 @@ class Bot:
         while True:
             if not self.__queue.empty():
                 event = self.__queue.get(block=False)
-    
