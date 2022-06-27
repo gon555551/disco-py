@@ -113,4 +113,37 @@ class Bot:
     def __gateway_handler(self):
         while True:
             if not self.__queue.empty():
-                event = self.__queue.get(block=False)
+                event: dict = self.__queue.get(block=False)
+                match event["t"]:
+                    case "MESSAGE_CREATE":
+                        self.__call_on_message_create(MessageCreate(event))
+                    case _:
+                        print(event)
+
+    def message_create(self) -> typing.Callable[[], None]:
+        def __on_message_create(
+            handler_function: typing.Callable[[], None]
+        ) -> typing.Callable[[], None]:
+            self.__call_on_message_create = handler_function
+
+        return __on_message_create
+
+    def __call_on_message_create(self, _) -> None:
+        pass
+
+
+class MessageCreate:
+    channel_id: str
+    timestamp: str
+    member: dict
+    content: str
+    author: dict
+    guild_id: str
+
+    def __init__(self, event: dict) -> None:
+        self.event = event
+        self.__set_message_attributes()
+
+    def __set_message_attributes(self) -> None:
+        for attr in self.__annotations__:
+            self.__setattr__(attr, self.event["d"][attr])

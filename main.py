@@ -12,4 +12,8 @@ if __name__ == "__main__":
     def do_on_ready():
         print(f"logged in as {bot.full_name}")
 
+    @bot.message_create()
+    def do_on_message(event: MessageCreate):
+        print(event.content)
+
     bot.loop()

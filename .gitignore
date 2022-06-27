@@ -3,4 +3,5 @@
 /.vscode/
 __test.py
 first_try.py
+clean.py
 .env
