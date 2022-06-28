@@ -288,11 +288,25 @@ class Bot:
         dm_channel = requests.post(
             endpoint_url,
             headers={"Authorization": f"Bot {self.token}"},
-            json=user["id"],
-        )
+            json={"recipient_id": user["id"]},
+        ).json()
         send_url = f"https://discord.com/api/v10/channels/{dm_channel['id']}/messages"
         requests.post(
             send_url,
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
+        )
+
+    def reply(self, content: str, event: MessageCreate, mention: bool = True):
+        endpoint_url = (
+            f"https://discord.com/api/v10/channels/{event.channel_id}/messages"
+        )
+        r = requests.post(
+            endpoint_url,
+            headers={"Authorization": f"Bot {self.token}"},
+            json={
+                "content": content,
+                "message_reference": {"message_id": event.id},
+                "allowed_mentions": {"replied_user": mention},
+            },
         )

@@ -1,4 +1,5 @@
 class MessageCreate:
+    id: str
     channel_id: str
     timestamp: str
     member: dict
