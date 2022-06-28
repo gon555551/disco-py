@@ -341,17 +341,16 @@ class Bot:
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
-        
+
     # ack an interaction
     @multipledispatch.dispatch()
     def send_interaction(self) -> None:
-        """send a PONG to a PING
-        """
+        """send a PONG to a PING"""
 
         self.__event: InteractionCreate
 
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
-            
+
         requests.post(endpoint_url, json={"type": 1})
 
     # respond to an interaction with a message
@@ -368,10 +367,10 @@ class Bot:
 
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         if ephemeral:
-            json={"type": 4, "data": {"content": content, "flags": 64}}
+            json = {"type": 4, "data": {"content": content, "flags": 64}}
         else:
-            json={"type": 4, "data": {"content": content}}
-            
+            json = {"type": 4, "data": {"content": content}}
+
         requests.post(endpoint_url, json=json)
 
     # send a DM to a user while responding to an event
