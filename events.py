@@ -21,6 +21,19 @@ class MessageCreate:
                 pass
 
 
+class MessageDelete:
+    id: str
+    channel_id: str
+    guild_id: str
+
+    def __init__(self, event: dict) -> None:
+        self.id = event["d"]["id"]
+        self.channel_id = event["d"]["channel_id"]
+        self.guild_id = event["d"]["guild_id"]
+        
+        self.full = event
+        
+
 class InteractionCreate:
     token: str
     author: dict
@@ -49,16 +62,3 @@ class InteractionCreate:
     def __set_options_attributes(self):
         for options in self.data["options"]:
             self.options[f"{options['name']}"] = f"{options['value']}"
-
-
-class MessageDelete:
-    id: str
-    channel_id: str
-    guild_id: str
-
-    def __init__(self, event: dict) -> None:
-        self.id = event["d"]["id"]
-        self.channel_id = event["d"]["channel_id"]
-        self.guild_id = event["d"]["guild_id"]
-        
-        self.full = event
