@@ -17,7 +17,6 @@ class MessageCreate:
                 self.__setattr__(attr, self.event["d"][attr])
             except KeyError:
                 pass
-        print(self.author)
 
 
 class InteractionCreate:

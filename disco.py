@@ -238,10 +238,12 @@ class Bot:
                 match self.__event["t"]:
                     case "MESSAGE_CREATE":
                         self.__event = MessageCreate(self.__event)
-                        await self.__call_on_message_create(self.__event)
+                        self.__call_on_message_create(self.__event)
                     case "INTERACTION_CREATE":
                         self.__event = InteractionCreate(self.__event)
-                        await self.__call_on_interaction_create(self.__event)
+                        self.__call_on_interaction_create(self.__event)
+                    case None:
+                        pass
                     case _:
                         print(self.__event)
 
@@ -259,7 +261,7 @@ class Bot:
 
         return __on_message_create
 
-    async def __call_on_message_create(self, event: MessageCreate) -> None:
+    def __call_on_message_create(self, event: MessageCreate) -> None:
         pass
 
     def send_message(self, content: str) -> None:
@@ -292,7 +294,7 @@ class Bot:
 
         return __on_interaction_create
 
-    async def __call_on_interaction_create(self, event: InteractionCreate) -> None:
+    def __call_on_interaction_create(self, event: InteractionCreate) -> None:
         pass
 
     def send_interaction(self, content: str, ephemeral: bool = False) -> None:
