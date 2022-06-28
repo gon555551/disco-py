@@ -335,7 +335,7 @@ class Bot:
             headers={"Authorization": f"Bot {self.token}"},
         )
 
-    def reply(self, content: str, event: MessageCreate, mention: bool = True):
+    def reply(self, content: str, mention: bool = True):
         """sends a message reply
 
         Args:
@@ -345,14 +345,14 @@ class Bot:
         """
         
         endpoint_url = (
-            f"https://discord.com/api/v10/channels/{event.channel_id}/messages"
+            f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
         )
-        r = requests.post(
+        requests.post(
             endpoint_url,
             headers={"Authorization": f"Bot {self.token}"},
             json={
                 "content": content,
-                "message_reference": {"message_id": event.id},
+                "message_reference": {"message_id": self.__event.id},
                 "allowed_mentions": {"replied_user": mention},
             },
         )
