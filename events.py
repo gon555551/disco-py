@@ -10,6 +10,8 @@ class MessageCreate:
     def __init__(self, event: dict) -> None:
         self.event = event
         self.__set_message_attributes()
+        
+        self.full = event
 
     def __set_message_attributes(self) -> None:
         for attr in self.__annotations__:
@@ -33,6 +35,8 @@ class InteractionCreate:
         self.__set_interaction_attributes()
         if "options" in self.data.keys():
             self.__set_options_attributes()
+        
+        self.full = event
 
     def __set_interaction_attributes(self):
         for attr in self.__annotations__:
@@ -56,3 +60,5 @@ class MessageDelete:
         self.id = event["d"]["id"]
         self.channel_id = event["d"]["channel_id"]
         self.guild_id = event["d"]["guild_id"]
+        
+        self.full = event
