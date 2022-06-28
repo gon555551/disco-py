@@ -337,8 +337,6 @@ class Bot:
             content (str): content of the message
         """
 
-        self.__event: MessageCreate
-
         endpoint_url = (
             f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
         )
@@ -358,8 +356,6 @@ class Bot:
             channel_id (str): the id of the channel to send the message in
         """
 
-        self.__event: MessageCreate
-
         endpoint_url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
         requests.post(
             endpoint_url,
@@ -371,8 +367,6 @@ class Bot:
     @multipledispatch.dispatch()
     def send_interaction(self) -> None:
         """send a PONG to a PING"""
-
-        self.__event: InteractionCreate
 
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
 
@@ -388,8 +382,6 @@ class Bot:
             content (str): the content of the message
             ephemeral (bool, optional): whether it's an ephemeral. Defaults to False.
         """
-
-        self.__event: InteractionCreate
 
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         if ephemeral:
