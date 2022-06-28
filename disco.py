@@ -355,12 +355,11 @@ class Bot:
 
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         if ephemeral:
-            requests.post(
-                endpoint_url,
-                json={"type": 4, "data": {"content": content, "flags": 64}},
-            )
+            json={"type": 4, "data": {"content": content, "flags": 64}}
         else:
-            requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
+            json={"type": 4, "data": {"content": content}}
+            
+        requests.post(endpoint_url, json=json)
 
     # send a DM to a user while responding to an event
     @multipledispatch.dispatch(str)
