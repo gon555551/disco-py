@@ -330,6 +330,7 @@ class Bot:
 
         Args:
             content (str): content of the message
+            channel_id (str): the id of the channel to send the message in
         """
         
         self.__event: MessageCreate
@@ -363,13 +364,13 @@ class Bot:
         else:
             requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
 
-    # send a DM to a user
+    # send a DM to a user while responding to an event
+    @multipledispatch.dispatch(str)
     def send_dm(self, content: str) -> None:
         """sends a DM to a user
 
         Args:
             content (str): the content of the DM
-            user (dict): the user to send it to
         """
 
         endpoint_url = "https://discord.com/api/v10/users/@me/channels"
@@ -384,13 +385,36 @@ class Bot:
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
+        
+    # send a DM to a specific user
+    @multipledispatch.dispatch(str, str)
+    def send_dm(self, content: str, user_id: str) -> None:
+        """sends a DM to a user
 
+        Args:
+            content (str): the content of the DM
+            user_id (str): the id of the user to send it to
+        """
+
+        endpoint_url = "https://discord.com/api/v10/users/@me/channels"
+        dm_channel = requests.post(
+            endpoint_url,
+            headers={"Authorization": f"Bot {self.token}"},
+            json={"recipient_id": user_id},
+        ).json()
+        send_url = f"https://discord.com/api/v10/channels/{dm_channel['id']}/messages"
+        requests.post(
+            send_url,
+            json={"content": content},
+            headers={"Authorization": f"Bot {self.token}"},
+        )
+    
+    # reply to a message with a message
     def reply(self, content: str, mention: bool = True):
         """sends a message reply
 
         Args:
             content (str): the content of the message
-            event (MessageCreate): the message event to reply to
             mention (bool, optional): whether to mention the user. Defaults to True.
         """
 
