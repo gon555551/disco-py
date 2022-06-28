@@ -262,7 +262,7 @@ class Bot:
                 json=json,
             )
         else:
-            r = requests.post(
+            requests.post(
                 commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
             )
 
