@@ -331,12 +331,6 @@ class Bot:
     # send a message in response to an event
     @multipledispatch.dispatch(str)
     def send_message(self, content: str) -> None:
-        """send a message in the channel of the MESSAGE_CREATE event you're responding to
-
-        Args:
-            content (str): content of the message
-        """
-
         endpoint_url = (
             f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
         )
@@ -363,18 +357,7 @@ class Bot:
             headers={"Authorization": f"Bot {self.token}"},
         )
 
-    # ack an interaction
-    @multipledispatch.dispatch()
-    def send_interaction(self) -> None:
-        """send a PONG to a PING"""
-
-        endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
-
-        r = requests.post(endpoint_url, json={"type": 1})
-        print(r.json())
-
     # respond to an interaction with a message
-    @multipledispatch.dispatch(str, bool)
     def send_interaction(self, content: str, ephemeral: bool = False) -> None:
         """send an interaction response
 
@@ -394,12 +377,6 @@ class Bot:
     # send a DM to a user while responding to an event
     @multipledispatch.dispatch(str)
     def send_dm(self, content: str) -> None:
-        """sends a DM to a user
-
-        Args:
-            content (str): the content of the DM
-        """
-
         endpoint_url = "https://discord.com/api/v10/users/@me/channels"
         dm_channel = requests.post(
             endpoint_url,
