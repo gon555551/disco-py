@@ -284,7 +284,7 @@ class Bot:
             requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
 
     def send_dm(self, content: str, user: dict) -> None:
-        endpoint_url = "https://discord.com/api/v10//users/@me/channels"
+        endpoint_url = "https://discord.com/api/v10/users/@me/channels"
         dm_channel = requests.post(
             endpoint_url,
             headers={"Authorization": f"Bot {self.token}"},
