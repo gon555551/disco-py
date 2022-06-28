@@ -132,6 +132,12 @@ class Bot:
         ).json()["id"]
 
     def register(self, json) -> None:
+        """register a slash command
+
+        Args:
+            json (_type_): slash command json
+        """
+        
         self.__get_command_dict()
         commands_url = (
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
@@ -148,6 +154,15 @@ class Bot:
             )
 
     def delete(self, name: str):
+        """delete a slash command
+
+        Args:
+            name (str): the name of the command to delete
+
+        Raises:
+            CommandMissing: raised if the command isn't at the endpoint
+        """
+        
         self.__get_command_dict()
         commands_url = (
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
@@ -161,6 +176,9 @@ class Bot:
             raise CommandMissing(name)
         
     def clean(self):
+        """delete all slash commands
+        """
+        
         self.__get_command_dict()
         commands_url = (
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
