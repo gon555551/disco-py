@@ -21,7 +21,7 @@ class MessageCreate:
 
 class InteractionCreate:
     token: str
-    member: dict
+    author: dict
     data: dict
     channel_id: str
     id: str
@@ -33,11 +33,15 @@ class InteractionCreate:
         self.__set_interaction_attributes()
         if "options" in self.data.keys():
             self.__set_options_attributes()
-        self.member = self.member["user"]
+        self.authro = self.author["user"]
 
     def __set_interaction_attributes(self):
         for attr in self.__annotations__:
-            self.__setattr__(attr, self.event["d"][attr])
+            try:
+                self.__setattr__(attr, self.event["d"][attr])
+            except KeyError:
+                if attr == "author":
+                    self.__setattr__(attr, self.event["d"]["member"])
 
     def __set_options_attributes(self):
         for options in self.data["options"]:
