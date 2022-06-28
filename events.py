@@ -33,7 +33,6 @@ class InteractionCreate:
         self.__set_interaction_attributes()
         if "options" in self.data.keys():
             self.__set_options_attributes()
-        self.authro = self.author["user"]
 
     def __set_interaction_attributes(self):
         for attr in self.__annotations__:
@@ -41,7 +40,7 @@ class InteractionCreate:
                 self.__setattr__(attr, self.event["d"][attr])
             except KeyError:
                 if attr == "author":
-                    self.__setattr__(attr, self.event["d"]["member"])
+                    self.__setattr__(attr, self.event["d"]["member"]["user"])
 
     def __set_options_attributes(self):
         for options in self.data["options"]:
