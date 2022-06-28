@@ -351,7 +351,8 @@ class Bot:
 
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
 
-        requests.post(endpoint_url, json={"type": 1})
+        r = requests.post(endpoint_url, json={"type": 1})
+        print(r.json())
 
     # respond to an interaction with a message
     @multipledispatch.dispatch(str, bool)
