@@ -244,11 +244,11 @@ class Bot:
     # from here on, independent methods that the user calls directly
     #
     # register an application command
-    def register(self, json) -> None:
+    def register(self, json: dict) -> None:
         """register a slash command
 
         Args:
-            json (_type_): slash command json
+            json (dict): slash command json
         """
 
         self.__get_command_dict()
