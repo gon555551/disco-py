@@ -13,7 +13,11 @@ class MessageCreate:
 
     def __set_message_attributes(self) -> None:
         for attr in self.__annotations__:
-            self.__setattr__(attr, self.event["d"][attr])
+            try:
+                self.__setattr__(attr, self.event["d"][attr])
+            except KeyError:
+                pass
+        print(self.author)
 
 
 class InteractionCreate:
