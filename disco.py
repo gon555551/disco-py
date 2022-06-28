@@ -264,7 +264,9 @@ class Bot:
                 )
             else:
                 requests.post(
-                    commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
+                    commands_url,
+                    headers={"Authorization": f"Bot {self.token}"},
+                    json=json,
                 )
 
     # delete an application command, by name
