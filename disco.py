@@ -265,7 +265,7 @@ class Bot:
             requests.post(
                 commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
             )
-    
+
     # delete an application command, by name
     def delete(self, name: str):
         """delete a slash command
@@ -311,7 +311,7 @@ class Bot:
         Args:
             content (str): content of the message
         """
-        
+
         self.__event: MessageCreate
 
         endpoint_url = (
@@ -322,7 +322,7 @@ class Bot:
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
-    
+
     # sends a message to a specific channel
     @multipledispatch.dispatch(str, str)
     def send_message(self, content: str, channel_id: str) -> None:
@@ -332,12 +332,10 @@ class Bot:
             content (str): content of the message
             channel_id (str): the id of the channel to send the message in
         """
-        
+
         self.__event: MessageCreate
 
-        endpoint_url = (
-            f"https://discord.com/api/v10/channels/{channel_id}/messages"
-        )
+        endpoint_url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
         requests.post(
             endpoint_url,
             json={"content": content},
@@ -352,7 +350,7 @@ class Bot:
             content (str): the content of the message
             ephemeral (bool, optional): whether it's an ephemeral. Defaults to False.
         """
-        
+
         self.__event: InteractionCreate
 
         endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
@@ -385,7 +383,7 @@ class Bot:
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
-        
+
     # send a DM to a specific user
     @multipledispatch.dispatch(str, str)
     def send_dm(self, content: str, user_id: str) -> None:
@@ -408,7 +406,7 @@ class Bot:
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
-    
+
     # reply to a message with a message
     def reply(self, content: str, mention: bool = True):
         """sends a message reply
