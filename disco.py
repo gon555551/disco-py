@@ -155,12 +155,12 @@ class Bot:
                     case "MESSAGE_CREATE":
                         self.__event = MessageCreate(self.__event)
                         self.__call_on_message_create(self.__event)
-                    case "INTERACTION_CREATE":
-                        self.__event = InteractionCreate(self.__event)
-                        self.__call_on_interaction_create(self.__event)
                     case "MESSAGE_DELETE":
                         self.__event = MessageDelete(self.__event)
                         self.__call_on_message_delete(self.__event)
+                    case "INTERACTION_CREATE":
+                        self.__event = InteractionCreate(self.__event)
+                        self.__call_on_interaction_create(self.__event)
                     case None:
                         pass
                     case _:
