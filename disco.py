@@ -284,6 +284,13 @@ class Bot:
             requests.post(endpoint_url, json={"type": 4, "data": {"content": content}})
 
     def send_dm(self, content: str, user: dict) -> None:
+        """sends a DM to a user
+
+        Args:
+            content (str): the content of the DM
+            user (dict): the user to send it to
+        """
+        
         endpoint_url = "https://discord.com/api/v10/users/@me/channels"
         dm_channel = requests.post(
             endpoint_url,
@@ -298,6 +305,14 @@ class Bot:
         )
 
     def reply(self, content: str, event: MessageCreate, mention: bool = True):
+        """sends a message reply
+
+        Args:
+            content (str): the content of the message
+            event (MessageCreate): the message event to reply to
+            mention (bool, optional): whether to mention the user. Defaults to True.
+        """
+        
         endpoint_url = (
             f"https://discord.com/api/v10/channels/{event.channel_id}/messages"
         )
