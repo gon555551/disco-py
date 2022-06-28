@@ -244,27 +244,28 @@ class Bot:
     # from here on, independent methods that the user calls directly
     #
     # register an application command
-    def register(self, json: dict) -> None:
+    def register(self, *commands: dict) -> None:
         """register a slash command
 
         Args:
-            json (dict): slash command json
+            *commands (dict): slash command json(s)
         """
 
         self.__get_command_dict()
         commands_url = (
             f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
         )
-        if json["name"] in self.__command_dict.keys():
-            requests.patch(
-                f"{commands_url}/{self.__command_dict[json['name']]}",
-                headers={"Authorization": f"Bot {self.token}"},
-                json=json,
-            )
-        else:
-            requests.post(
-                commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
-            )
+        for json in commands:
+            if json["name"] in self.__command_dict.keys():
+                requests.patch(
+                    f"{commands_url}/{self.__command_dict[json['name']]}",
+                    headers={"Authorization": f"Bot {self.token}"},
+                    json=json,
+                )
+            else:
+                requests.post(
+                    commands_url, headers={"Authorization": f"Bot {self.token}"}, json=json
+                )
 
     # delete an application command, by name
     def delete(self, name: str):
