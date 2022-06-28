@@ -1,4 +1,4 @@
-from client import *
+from disco import *
 import dotenv, os
 
 
@@ -40,14 +40,14 @@ if __name__ == "__main__":
         print(f"logged in as {bot.full_name}")
 
     @bot.message_create()
-    async def do_on_message(event: MessageCreate):
+    def do_on_message(event: MessageCreate):
         if event.author["username"] == bot.username:
             return
 
         bot.send_message(event.content)
 
     @bot.interaction_create()
-    async def do_on_interaction(event: InteractionCreate):
+    def do_on_interaction(event: InteractionCreate):
         match event.data["name"]:
             case "test_slash_command":
                 bot.send_interaction("KAPOW", True)
