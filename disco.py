@@ -158,6 +158,9 @@ class Bot:
                     case "INTERACTION_CREATE":
                         self.__event = InteractionCreate(self.__event)
                         self.__call_on_interaction_create(self.__event)
+                    case "MESSAGE_DELETE":
+                        self.__event = MessageDelete(self.__event)
+                        self.__call_on_message_delete(self.__event)
                     case None:
                         pass
                     case _:
@@ -180,6 +183,25 @@ class Bot:
 
     # by default do nothing, is changed by self.message_create()
     def __call_on_message_create(self, event: MessageCreate) -> None:
+        pass
+
+    # message delete decorator, to say it's to respond to an MESSAGE_DELETE event
+    def message_delete(self) -> typing.Callable[[], None]:
+        """decorator for responding to MESSAGE_DELETE events
+
+        Returns:
+            typing.Callable[[], None]: wrapper
+        """
+
+        def __on_message_delete(
+            handler_function: typing.Callable[[], None]
+        ) -> typing.Callable[[], None]:
+            self.__call_on_message_delete = handler_function
+
+        return __on_message_delete
+
+    # by default do nothing, is changed by self.message_delete()
+    def __call_on_message_delete(self, event: MessageDelete) -> None:
         pass
 
     # interaction create decorator, to say it's to respond to an INTERACTION_CREATE event
