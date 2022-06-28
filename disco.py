@@ -159,6 +159,17 @@ class Bot:
             )
         else:
             raise CommandMissing(name)
+        
+    def clean(self):
+        self.__get_command_dict()
+        commands_url = (
+            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
+        )
+        for command_id in self.__command_dict.values():
+            requests.delete(
+                f"{commands_url}/{command_id}",
+                headers={"Authorization": f"Bot {self.token}"},
+            )
 
     def __get_command_dict(self) -> None:
         commands_url = (
