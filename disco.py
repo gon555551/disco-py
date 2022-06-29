@@ -33,6 +33,8 @@ class Bot:
 
         self.token: str = token
 
+        self.__gateway_url = "wss://gateway.discord.gg/?v=10&encoding=json"
+
         self.__get_app_id()
         self.__set_intents()
         self.__intents: int = None
@@ -45,6 +47,9 @@ class Bot:
         self.__app_id = requests.get(
             user_url, headers={"Authorization": f"Bot {self.token}"}
         ).json()["id"]
+        self.__commands_url = (
+            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
+        )
 
     # sets the int for each bot intent
     def __set_intents(self) -> None:
@@ -69,9 +74,7 @@ class Bot:
 
     # async method for establishing the websocket connection
     async def __establish_connection(self):
-        async with websockets.connect(
-            "wss://gateway.discord.gg/?v=10&encoding=json"
-        ) as ws:
+        async with websockets.connect(self.__gateway_url) as ws:
             self.ws = ws
             await self.__prepare()
             await self.__listener()
@@ -234,9 +237,7 @@ class Bot:
     # when the connection goes down, enact this protocol
     async def __resume_protocol(self):
         self.ws.close()
-        async with websockets.connect(
-            "wss://gateway.discord.gg/?v=10&encoding=json"
-        ) as ws:
+        async with websockets.connect(self.__gateway_url) as ws:
             self.ws = ws
             await self.ws.send(
                 json.dumps(
@@ -254,11 +255,8 @@ class Bot:
 
     # gets all currently active application commands
     def __get_command_dict(self) -> None:
-        commands_url = (
-            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
-        )
         for commands in requests.get(
-            commands_url, headers={"Authorization": f"Bot {self.token}"}
+            self.__commands_url, headers={"Authorization": f"Bot {self.token}"}
         ).json():
             self.__command_dict[commands["name"]] = commands["id"]
 
@@ -274,19 +272,16 @@ class Bot:
         """
 
         self.__get_command_dict()
-        commands_url = (
-            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
-        )
         for json in commands:
             if json["name"] in self.__command_dict.keys():
                 requests.patch(
-                    f"{commands_url}/{self.__command_dict[json['name']]}",
+                    f"{self.__commands_url}/{self.__command_dict[json['name']]}",
                     headers={"Authorization": f"Bot {self.token}"},
                     json=json,
                 )
             else:
                 requests.post(
-                    commands_url,
+                    self.__commands_url,
                     headers={"Authorization": f"Bot {self.token}"},
                     json=json,
                 )
@@ -303,12 +298,9 @@ class Bot:
         """
 
         self.__get_command_dict()
-        commands_url = (
-            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
-        )
         if name in self.__command_dict.keys():
             requests.delete(
-                f"{commands_url}/{self.__command_dict[name]}",
+                f"{self.__commands_url}/{self.__command_dict[name]}",
                 headers={"Authorization": f"Bot {self.token}"},
             )
         else:
@@ -319,12 +311,9 @@ class Bot:
         """delete all slash commands"""
 
         self.__get_command_dict()
-        commands_url = (
-            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
-        )
         for command_id in self.__command_dict.values():
             requests.delete(
-                f"{commands_url}/{command_id}",
+                f"{self.__commands_url}/{command_id}",
                 headers={"Authorization": f"Bot {self.token}"},
             )
 
@@ -381,7 +370,7 @@ class Bot:
         dm_channel = requests.post(
             endpoint_url,
             headers={"Authorization": f"Bot {self.token}"},
-            json={"recipient_id": self.__event.author["id"]},
+            json={"recipient_id": self.__event.author.id},
         ).json()
         send_url = f"https://discord.com/api/v10/channels/{dm_channel['id']}/messages"
         requests.post(

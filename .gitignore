@@ -2,4 +2,5 @@
 /.venv/
 /.vscode/
 /.untracked/
+/objects/__pycache__/
 .env
