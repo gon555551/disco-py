@@ -1,10 +1,5 @@
 /__pycache__/
-/discord_bot/
+/.venv/
 /.vscode/
-__test.py
-first_try.py
-clean.py
+/.untracked/
 .env
-_test_.py
-func.py
-tone_ind.py
