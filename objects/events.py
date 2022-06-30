@@ -44,7 +44,7 @@ class InteractionCreate:
 
     def __init__(self, event: dict) -> None:
         self.event = event
-        self.options = dict()
+        self.options: dict[str, str] = dict()
         self.__set_interaction_attributes()
         if "options" in self.data.keys():
             self.__set_options_attributes()
