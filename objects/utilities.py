@@ -6,11 +6,11 @@ class Author:
     avatar_decoration: str
     avatar: str
     bot: bool
-    
+
     def __init__(self, author: dict) -> None:
         self.author = author
         self.__set_author_attributes()
-        
+
     def __set_author_attributes(self) -> None:
         for attr in self.__annotations__:
             try:
@@ -18,3 +18,7 @@ class Author:
             except KeyError:
                 if attr == "bot":
                     self.bot = False
+
+
+def __channel_messages_end(id: str) -> str:
+    return f"https://discord.com/api/v10/channels/{id}/messages"

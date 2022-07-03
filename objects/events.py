@@ -1,4 +1,4 @@
-from objects.util_obj import *
+from objects.utilities import *
 
 
 class MessageCreate:
