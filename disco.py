@@ -355,13 +355,12 @@ class Bot:
             ephemeral (bool, optional): whether it's an ephemeral. Defaults to False.
         """
 
-        endpoint_url = f"https://discord.com/api/v10/interactions/{self.__event.id}/{self.__event.token}/callback"
         if ephemeral:
             json = {"type": 4, "data": {"content": content, "flags": 64}}
         else:
             json = {"type": 4, "data": {"content": content}}
 
-        requests.post(endpoint_url, json=json)
+        requests.post(interactions_callback_end(self.__event.id, self.__event.token), json=json)
 
     # send a DM to a user while responding to an event
     @multipledispatch.dispatch(str)
