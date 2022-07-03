@@ -1,5 +1,5 @@
 # disco-py
-a discord module with Interactions capabilities
+a discord module with *Interactions* capabilities, and, hopefully, complete coverage
 
 ``main.py`` is an example bot.
 
