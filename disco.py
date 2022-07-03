@@ -2,6 +2,7 @@ import websockets, asyncio, threading, requests, json, queue, typing, multipledi
 from utilities.events import *
 from utilities.errors import *
 from utilities.endpoints import *
+from utilities.obj_util import *
 
 
 class Bot:
@@ -34,9 +35,6 @@ class Bot:
 
         self.token: str = token
 
-        self.__gateway_url = "wss://gateway.discord.gg/?v=10&encoding=json"
-        self.__dm_endpoint = "https://discord.com/api/v10/users/@me/channels"
-
         self.__get_app_id()
         self.__set_intents()
         self.__intents: int = None
@@ -45,13 +43,10 @@ class Bot:
 
     # gets the app id for the bot
     def __get_app_id(self) -> None:
-        user_url = "https://discord.com/api/v10/users/@me"
         self.__app_id = requests.get(
-            user_url, headers={"Authorization": f"Bot {self.token}"}
+            user_endpoint, headers={"Authorization": f"Bot {self.token}"}
         ).json()["id"]
-        self.__commands_url = (
-            f"https://discord.com/api/v10/applications/{self.__app_id}/commands"
-        )
+        self.__commands_url = app_commands_end(self.__app_id)
 
     # sets the int for each bot intent
     def __set_intents(self) -> None:
@@ -76,7 +71,7 @@ class Bot:
 
     # async method for establishing the websocket connection
     async def __establish_connection(self):
-        async with websockets.connect(self.__gateway_url) as ws:
+        async with websockets.connect(gateway_url) as ws:
             self.ws = ws
             await self.__prepare()
             await self.__listener()
@@ -239,7 +234,7 @@ class Bot:
     # when the connection goes down, enact this protocol
     async def __resume_protocol(self):
         self.ws.close()
-        async with websockets.connect(self.__gateway_url) as ws:
+        async with websockets.connect(gateway_url) as ws:
             self.ws = ws
             await self.ws.send(
                 json.dumps(
@@ -365,7 +360,7 @@ class Bot:
     @multipledispatch.dispatch(str)
     def send_dm(self, content: str) -> None:
         dm_channel = requests.post(
-            self.__dm_endpoint,
+            dm_endpoint,
             headers={"Authorization": f"Bot {self.token}"},
             json={"recipient_id": self.__event.author.id},
         ).json()
@@ -386,7 +381,7 @@ class Bot:
         """
 
         dm_channel = requests.post(
-            self.__dm_endpoint,
+            dm_endpoint,
             headers={"Authorization": f"Bot {self.token}"},
             json={"recipient_id": user_id},
         ).json()
