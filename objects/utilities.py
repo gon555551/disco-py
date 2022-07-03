@@ -20,5 +20,5 @@ class Author:
                     self.bot = False
 
 
-def __channel_messages_end(id: str) -> str:
+def channel_messages_end(id: str) -> str:
     return f"https://discord.com/api/v10/channels/{id}/messages"

@@ -1,6 +1,7 @@
 import websockets, asyncio, threading, requests, json, queue, typing, multipledispatch
 from objects.events import *
 from objects.errors import *
+from objects.utilities import *
 
 
 class Bot:
@@ -34,6 +35,7 @@ class Bot:
         self.token: str = token
 
         self.__gateway_url = "wss://gateway.discord.gg/?v=10&encoding=json"
+        self.__dm_endpoint = "https://discord.com/api/v10/users/@me/channels"
 
         self.__get_app_id()
         self.__set_intents()
@@ -320,11 +322,8 @@ class Bot:
     # send a message in response to an event
     @multipledispatch.dispatch(str)
     def send_message(self, content: str) -> None:
-        endpoint_url = (
-            f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
-        )
         requests.post(
-            endpoint_url,
+            channel_messages_end(self.__event.channel_id),
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
@@ -339,9 +338,8 @@ class Bot:
             channel_id (str): the id of the channel to send the message in
         """
 
-        endpoint_url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
         requests.post(
-            endpoint_url,
+            channel_messages_end(channel_id),
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
@@ -366,15 +364,13 @@ class Bot:
     # send a DM to a user while responding to an event
     @multipledispatch.dispatch(str)
     def send_dm(self, content: str) -> None:
-        endpoint_url = "https://discord.com/api/v10/users/@me/channels"
         dm_channel = requests.post(
-            endpoint_url,
+            self.__dm_endpoint,
             headers={"Authorization": f"Bot {self.token}"},
             json={"recipient_id": self.__event.author.id},
         ).json()
-        send_url = f"https://discord.com/api/v10/channels/{dm_channel['id']}/messages"
         requests.post(
-            send_url,
+            channel_messages_end(dm_channel["id"]),
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
@@ -389,15 +385,13 @@ class Bot:
             user_id (str): the id of the user to send it to
         """
 
-        endpoint_url = "https://discord.com/api/v10/users/@me/channels"
         dm_channel = requests.post(
-            endpoint_url,
+            self.__dm_endpoint,
             headers={"Authorization": f"Bot {self.token}"},
             json={"recipient_id": user_id},
         ).json()
-        send_url = f"https://discord.com/api/v10/channels/{dm_channel['id']}/messages"
         requests.post(
-            send_url,
+            channel_messages_end(dm_channel["id"]),
             json={"content": content},
             headers={"Authorization": f"Bot {self.token}"},
         )
@@ -411,11 +405,8 @@ class Bot:
             mention (bool, optional): whether to mention the user. Defaults to True.
         """
 
-        endpoint_url = (
-            f"https://discord.com/api/v10/channels/{self.__event.channel_id}/messages"
-        )
         requests.post(
-            endpoint_url,
+            channel_messages_end(self.__event.channel_id),
             headers={"Authorization": f"Bot {self.token}"},
             json={
                 "content": content,
