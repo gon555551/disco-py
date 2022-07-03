@@ -1,7 +1,7 @@
 import websockets, asyncio, threading, requests, json, queue, typing, multipledispatch
-from objects.events import *
-from objects.errors import *
-from objects.utilities import *
+from utilities.events import *
+from utilities.errors import *
+from utilities.endpoints import *
 
 
 class Bot:
