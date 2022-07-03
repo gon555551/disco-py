@@ -1,4 +1,11 @@
-import websockets, asyncio, threading, requests, json, queue, typing, multipledispatch
+import multipledispatch
+import websockets
+import threading
+import requests
+import asyncio
+import typing
+import queue
+import json
 from utilities.events import *
 from utilities.errors import *
 from utilities.endpoints import *
