@@ -1,3 +1,4 @@
+from email import message
 import multipledispatch
 import websockets
 import threading
@@ -6,10 +7,11 @@ import asyncio
 import typing
 import queue
 import json
-from utilities.events import *
-from utilities.errors import *
 from utilities.endpoints import *
 from utilities.obj_util import *
+from utilities.builder import *
+from utilities.events import *
+from utilities.errors import *
 
 
 class Bot:
@@ -41,6 +43,7 @@ class Bot:
         """
 
         self.token: str = token
+        self.__auth: dict = {"Authorization": f"Bot {self.token}"}
 
         self.__get_app_id()
         self.__set_intents()
@@ -50,9 +53,7 @@ class Bot:
 
     # gets the app id for the bot
     def __get_app_id(self) -> None:
-        self.__app_id = requests.get(
-            user_endpoint, headers={"Authorization": f"Bot {self.token}"}
-        ).json()["id"]
+        self.__app_id = requests.get(user_endpoint, headers=self.__auth).json()["id"]
         self.__commands_url = app_commands_end(self.__app_id)
 
     # sets the int for each bot intent
@@ -259,9 +260,7 @@ class Bot:
 
     # gets all currently active application commands
     def __get_command_dict(self) -> None:
-        for commands in requests.get(
-            self.__commands_url, headers={"Authorization": f"Bot {self.token}"}
-        ).json():
+        for commands in requests.get(self.__commands_url, headers=self.__auth).json():
             self.__command_dict[commands["name"]] = commands["id"]
 
     #
@@ -280,13 +279,13 @@ class Bot:
             if json["name"] in self.__command_dict.keys():
                 requests.patch(
                     f"{self.__commands_url}/{self.__command_dict[json['name']]}",
-                    headers={"Authorization": f"Bot {self.token}"},
+                    headers=self.__auth,
                     json=json,
                 )
             else:
                 requests.post(
                     self.__commands_url,
-                    headers={"Authorization": f"Bot {self.token}"},
+                    headers=self.__auth,
                     json=json,
                 )
 
@@ -305,7 +304,7 @@ class Bot:
         if name in self.__command_dict.keys():
             requests.delete(
                 f"{self.__commands_url}/{self.__command_dict[name]}",
-                headers={"Authorization": f"Bot {self.token}"},
+                headers=self.__auth,
             )
         else:
             raise CommandMissing(name)
@@ -318,32 +317,38 @@ class Bot:
         for command_id in self.__command_dict.values():
             requests.delete(
                 f"{self.__commands_url}/{command_id}",
-                headers={"Authorization": f"Bot {self.token}"},
+                headers=self.__auth,
             )
 
     # send a message in response to an event
-    @multipledispatch.dispatch(str)
-    def send_message(self, content: str) -> None:
-        requests.post(
-            channel_messages_end(self.__event.channel_id),
-            json={"content": content},
-            headers={"Authorization": f"Bot {self.token}"},
-        )
-
-    # sends a message to a specific channel
-    @multipledispatch.dispatch(str, str)
-    def send_message(self, content: str, channel_id: str) -> None:
-        """send a message in the channel of the MESSAGE_CREATE event you're responding to
+    def send_message(
+        self,
+        content: str = None,
+        tts: bool = None,
+        embeds: list = None,
+        allowed_mentions: dict = None,
+        message_reference: dict = None,
+        components: list = None,
+        sticker_ids: list = None,
+        flags: int = None,
+    ) -> None:
+        """sends a message
 
         Args:
-            content (str): content of the message
-            channel_id (str): the id of the channel to send the message in
+            content (str, optional): the content of the message. Defaults to None.
+            tts (bool, optional): if the message is tts. Defaults to None.
+            embeds (list, optional): the embeds. Defaults to None.
+            allowed_mentions (dict, optional): whether it allows mentions. Defaults to None.
+            message_reference (dict, optional): whether its a reference. Defaults to None.
+            components (list, optional): the message components. Defaults to None.
+            sticker_ids (list, optional): the ids of the stickers. Defaults to None.
+            flags (int, optional): the flags. Defaults to None.
         """
 
         requests.post(
-            channel_messages_end(channel_id),
-            json={"content": content},
-            headers={"Authorization": f"Bot {self.token}"},
+            channel_messages_end(self.__event.channel_id),
+            json=message_obj(locals()),
+            headers=self.__auth,
         )
 
     # respond to an interaction with a message
@@ -360,20 +365,22 @@ class Bot:
         else:
             json = {"type": 4, "data": {"content": content}}
 
-        requests.post(interactions_callback_end(self.__event.id, self.__event.token), json=json)
+        requests.post(
+            interactions_callback_end(self.__event.id, self.__event.token), json=json
+        )
 
     # send a DM to a user while responding to an event
     @multipledispatch.dispatch(str)
     def send_dm(self, content: str) -> None:
         dm_channel = requests.post(
             dm_endpoint,
-            headers={"Authorization": f"Bot {self.token}"},
+            headers=self.__auth,
             json={"recipient_id": self.__event.author.id},
         ).json()
         requests.post(
             channel_messages_end(dm_channel["id"]),
             json={"content": content},
-            headers={"Authorization": f"Bot {self.token}"},
+            headers=self.__auth,
         )
 
     # send a DM to a specific user
@@ -388,13 +395,13 @@ class Bot:
 
         dm_channel = requests.post(
             dm_endpoint,
-            headers={"Authorization": f"Bot {self.token}"},
+            headers=self.__auth,
             json={"recipient_id": user_id},
         ).json()
         requests.post(
             channel_messages_end(dm_channel["id"]),
             json={"content": content},
-            headers={"Authorization": f"Bot {self.token}"},
+            headers=self.__auth,
         )
 
     # reply to a message with a message
@@ -408,7 +415,7 @@ class Bot:
 
         requests.post(
             channel_messages_end(self.__event.channel_id),
-            headers={"Authorization": f"Bot {self.token}"},
+            headers=self.__auth,
             json={
                 "content": content,
                 "message_reference": {"message_id": self.__event.id},
