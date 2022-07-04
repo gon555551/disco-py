@@ -46,8 +46,9 @@ class InteractionCreate:
         self.event = event
         self.options: dict[str, str] = dict()
         self.__set_interaction_attributes()
-        if "options" in self.data.keys():
-            self.__set_options_attributes()
+
+        self.__set_options_attributes()
+        self.__set_resolved()
 
     def __set_interaction_attributes(self):
         for attr in self.__annotations__:
@@ -58,5 +59,14 @@ class InteractionCreate:
                     self.__setattr__(attr, Author(self.event["d"]["member"]["user"]))
 
     def __set_options_attributes(self):
-        for options in self.data["options"]:
-            self.options[f"{options['name']}"] = f"{options['value']}"
+        if "options" in self.data.keys():
+            for options in self.data["options"]:
+                self.options[f"{options['name']}"] = f"{options['value']}"
+
+    def __set_resolved(self):
+        if "resolved" in self.data.keys():
+            self.resolved = Author(
+                self.data["resolved"]["users"][
+                    list(self.data["resolved"]["users"].keys())[0]
+                ]
+            )
