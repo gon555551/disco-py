@@ -326,8 +326,8 @@ class Bot:
         content: str = None,
         tts: bool = None,
         embeds: list = None,
-        allowed_mentions: dict = None,
-        message_reference: dict = None,
+        allowed_mentions: bool = None,
+        message_reference: bool = None,
         components: list = None,
         sticker_ids: list = None,
         flags: int = None,
@@ -338,8 +338,8 @@ class Bot:
             content (str, optional): the content of the message. Defaults to None.
             tts (bool, optional): if the message is tts. Defaults to None.
             embeds (list, optional): the embeds. Defaults to None.
-            allowed_mentions (dict, optional): whether it allows mentions. Defaults to None.
-            message_reference (dict, optional): whether its a reference. Defaults to None.
+            allowed_mentions (bool, optional): whether it allows mentions. Defaults to None.
+            message_reference (bool, optional): whether its a reference. Defaults to None.
             components (list, optional): the message components. Defaults to None.
             sticker_ids (list, optional): the ids of the stickers. Defaults to None.
             flags (int, optional): the flags. Defaults to None.
@@ -347,7 +347,7 @@ class Bot:
 
         requests.post(
             channel_messages_end(self.__event.channel_id),
-            json=message_obj(locals()),
+            json=message_obj(locals(), self.__event.id),
             headers=self.__auth,
         )
 
@@ -402,23 +402,4 @@ class Bot:
             channel_messages_end(dm_channel["id"]),
             json={"content": content},
             headers=self.__auth,
-        )
-
-    # reply to a message with a message
-    def reply(self, content: str, mention: bool = True):
-        """sends a message reply
-
-        Args:
-            content (str): the content of the message
-            mention (bool, optional): whether to mention the user. Defaults to True.
-        """
-
-        requests.post(
-            channel_messages_end(self.__event.channel_id),
-            headers=self.__auth,
-            json={
-                "content": content,
-                "message_reference": {"message_id": self.__event.id},
-                "allowed_mentions": {"replied_user": mention},
-            },
         )
