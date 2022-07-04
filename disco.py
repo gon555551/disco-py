@@ -317,7 +317,10 @@ class Bot:
                 f"{self.__commands_url}/{command_id}",
                 headers=self.__auth,
             )
-
+    
+    #
+    # dealing with commands and sending things
+    # 
     # send a message in response to an event
     def send_message(
         self,
