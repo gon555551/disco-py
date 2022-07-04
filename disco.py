@@ -372,11 +372,16 @@ class Bot:
         flags: int = None,
         ephemeral: int = False,
     ) -> None:
-        """send an interaction response
+        """respond to an interaction
 
         Args:
-            content (str): the content of the message
-            ephemeral (bool, optional): whether it's an ephemeral. Defaults to False.
+            content (str, optional): the content of the message. Defaults to None.
+            tts (bool, optional): whether it's tts. Defaults to None.
+            embeds (list[dict], optional): list of embeds. Defaults to None.
+            allowed_mentions (bool, optional): allowed mentions. Defaults to None.
+            components (list, optional): components of the message. Defaults to None.
+            flags (int, optional): flags, can't be used with ephemeral. Defaults to None.
+            ephemeral (int, optional): whether it's ephemeral. Defaults to False.
         """
 
         requests.post(
