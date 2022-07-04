@@ -321,6 +321,7 @@ class Bot:
     # send a message in response to an event
     def send_message(
         self,
+        dm: bool = False,
         content: str = None,
         tts: bool = None,
         embeds: list[dict] = None,
@@ -333,6 +334,7 @@ class Bot:
         """sends a message
 
         Args:
+            dm (bool, optional): whether it's a dm. Defaults to False.
             content (str, optional): the content of the message. Defaults to None.
             tts (bool, optional): if the message is tts. Defaults to None.
             embeds (list[dict], optional): the embeds. Defaults to None.
@@ -343,8 +345,18 @@ class Bot:
             flags (int, optional): the flags. Defaults to None.
         """
 
+        if dm is True:
+            dm_channel = requests.post(
+                dm_endpoint,
+                headers=self.__auth,
+                json={"recipient_id": self.__event.author.id},
+            ).json()
+            url = channel_messages_end(dm_channel["id"])
+        else:
+            url = channel_messages_end(self.__event.channel_id)
+
         requests.post(
-            channel_messages_end(self.__event.channel_id),
+            url,
             json=message_obj(locals(), self.__event.id),
             headers=self.__auth,
         )
@@ -365,17 +377,4 @@ class Bot:
 
         requests.post(
             interactions_callback_end(self.__event.id, self.__event.token), json=json
-        )
-
-    # send a DM to a user while responding to an event
-    def send_dm(self, content: str) -> None:
-        dm_channel = requests.post(
-            dm_endpoint,
-            headers=self.__auth,
-            json={"recipient_id": self.__event.author.id},
-        ).json()
-        requests.post(
-            channel_messages_end(dm_channel["id"]),
-            json={"content": content},
-            headers=self.__auth,
         )

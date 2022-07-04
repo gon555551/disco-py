@@ -6,6 +6,18 @@ def message_obj(params: dict, id: str) -> dict:
     if "self" in params.keys():
         params.pop("self")
 
+    # pop dm
+    if "dm" in params.keys():
+        params.pop("dm")
+
+    # pop url
+    if "url" in params.keys():
+        params.pop("url")
+
+    # pop dm_channel
+    if "dm_channel" in params.keys():
+        params.pop("dm_channel")
+
     if (
         params["content"] is None
         and params["embeds"] is None
