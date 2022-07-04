@@ -1,7 +1,19 @@
+from utilities.errors import *
+
+
 def message_obj(params: dict, id: str) -> dict:
+    # pop self
     if "self" in params.keys():
         params.pop("self")
 
+    if (
+        params["content"] is None
+        and params["embeds"] is None
+        and params["sticker_ids"] is None
+    ):
+        raise InvalidMessage()
+
+    # manage replies
     if params["message_reference"] is True:
         params["message_reference"] = {"message_id": id}
 
@@ -20,6 +32,13 @@ def message_obj(params: dict, id: str) -> dict:
     else:
         params["message_reference"] = None
         params["allowed_mentions"] = None
+
+    # manage embeds
+    if params["embeds"] is not None:
+        params["embeds"] = [
+            {list(item.keys())[0]: {"url": list(item.values())[0]}}
+            for item in params["embeds"]
+        ]
 
     to_send = dict()
     for param in params.keys():

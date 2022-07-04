@@ -323,7 +323,7 @@ class Bot:
         self,
         content: str = None,
         tts: bool = None,
-        embeds: list = None,
+        embeds: list[dict] = None,
         allowed_mentions: bool = None,
         message_reference: bool = None,
         components: list = None,
@@ -335,7 +335,7 @@ class Bot:
         Args:
             content (str, optional): the content of the message. Defaults to None.
             tts (bool, optional): if the message is tts. Defaults to None.
-            embeds (list, optional): the embeds. Defaults to None.
+            embeds (list[dict], optional): the embeds. Defaults to None.
             allowed_mentions (bool, optional): whether it allows mentions. Defaults to None.
             message_reference (bool, optional): whether its a reference. Defaults to None.
             components (list, optional): the message components. Defaults to None.
