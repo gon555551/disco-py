@@ -1,5 +1,3 @@
-from email import message
-import multipledispatch
 import websockets
 import threading
 import requests
@@ -370,33 +368,11 @@ class Bot:
         )
 
     # send a DM to a user while responding to an event
-    @multipledispatch.dispatch(str)
     def send_dm(self, content: str) -> None:
         dm_channel = requests.post(
             dm_endpoint,
             headers=self.__auth,
             json={"recipient_id": self.__event.author.id},
-        ).json()
-        requests.post(
-            channel_messages_end(dm_channel["id"]),
-            json={"content": content},
-            headers=self.__auth,
-        )
-
-    # send a DM to a specific user
-    @multipledispatch.dispatch(str, str)
-    def send_dm(self, content: str, user_id: str) -> None:
-        """sends a DM to a user
-
-        Args:
-            content (str): the content of the DM
-            user_id (str): the id of the user to send it to
-        """
-
-        dm_channel = requests.post(
-            dm_endpoint,
-            headers=self.__auth,
-            json={"recipient_id": user_id},
         ).json()
         requests.post(
             channel_messages_end(dm_channel["id"]),
