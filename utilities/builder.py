@@ -1,7 +1,7 @@
 from utilities.errors import *
 
 
-def message_obj(params: dict, id: str) -> dict:
+def popper(params: dict) -> None:
     # pop self
     if "self" in params.keys():
         params.pop("self")
@@ -17,6 +17,14 @@ def message_obj(params: dict, id: str) -> dict:
     # pop dm_channel
     if "dm_channel" in params.keys():
         params.pop("dm_channel")
+    
+    # pop ephemeral
+    if "ephemeral" in params.keys():
+        params.pop("ephemeral")
+
+
+def message_obj(params: dict, id: str = None) -> dict:
+    popper(params)
 
     if (
         params["content"] is None
@@ -56,3 +64,27 @@ def message_obj(params: dict, id: str) -> dict:
             to_send[param] = params[param]
 
     return to_send
+
+
+def interaction_obj(params: dict) -> dict:
+    if params["ephemeral"] is True and params["flags"] is not None:
+        raise FlagsEphemeral()
+    
+    if params["ephemeral"]:
+        params["flags"] = 64
+    
+    popper(params)
+    
+    # manage embeds
+    if params["embeds"] is not None:
+        params["embeds"] = [
+            {list(item.keys())[0]: {"url": list(item.values())[0]}}
+            for item in params["embeds"]
+        ]
+
+    to_send = dict()
+    for param in params.keys():
+        if params[param] is not None:
+            to_send[param] = params[param]
+
+    return {"type": 4, "data": to_send}

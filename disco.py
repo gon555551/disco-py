@@ -362,7 +362,16 @@ class Bot:
         )
 
     # respond to an interaction with a message
-    def send_interaction(self, content: str, ephemeral: bool = False) -> None:
+    def send_interaction(
+        self,
+        content: str = None,
+        tts: bool = None,
+        embeds: list[dict] = None,
+        allowed_mentions: bool = None,
+        components: list = None,
+        flags: int = None,
+        ephemeral: int = False,
+    ) -> None:
         """send an interaction response
 
         Args:
@@ -370,11 +379,7 @@ class Bot:
             ephemeral (bool, optional): whether it's an ephemeral. Defaults to False.
         """
 
-        if ephemeral:
-            json = {"type": 4, "data": {"content": content, "flags": 64}}
-        else:
-            json = {"type": 4, "data": {"content": content}}
-
         requests.post(
-            interactions_callback_end(self.__event.id, self.__event.token), json=json
+            interactions_callback_end(self.__event.id, self.__event.token),
+            json=interaction_obj(locals()),
         )
